@@ -36,7 +36,7 @@ c=$(echo "$msg" |wc -c)
 >$playthis
 echo $msg >> $fileout
 
-zfec -m 15 -k 3 $fileout
+zfec -m 20 -k 3 $fileout
 for fec in $fileout.*_*.fec; do
 	b=$(cat $fec | base64)
 	echo $b >> $playthis
