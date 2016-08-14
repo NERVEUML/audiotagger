@@ -1,37 +1,24 @@
 #!/usr/bin/env python
 
 import os
+import re
 import sys
 import time
+import datetime
 import string
 import struct
 import reedsolo
 
 class NerveTRDescriptor:
-    structformatstr = "!xx8sxHxHxdxx"
+    structformatstr = "!8sHHd"
+    br = 120
     def __init__(self, *args,**kwargs):
-        self.rs=reedsolo.RSCodec(150)
+        self.rs=reedsolo.RSCodec(10)
+        if "br" in kwargs:
+            self.br = kwargs["br"]
         if( len(args) == 1 ):
             self.encoded = args[0]
-            self.decode()
-            print( self.sane() )
-            return
-            if not self.decode() or not self.sane():
-                print(self.__str__(), "not sane, trying next down")
-                if len( self.encoded ) >=  struct.calcsize( self.structformatstr ):
-                    try:
-                        self.__init__( self.encoded[1:] )
-                    except Exception as e:
-                        pass
-                else:
-                    raise Exception("insane!")
-            else:
-                # pass
-                print("sane!")
-                print(self.__str__())
-                # print("next...")
-                # size = struct.calcsize( self.structformatstr )
-                # self.__init__( self.encoded[size:] )
+            self.decodeall()
         else:
             self.group = args[0]
             self.task = args[1]
@@ -40,28 +27,27 @@ class NerveTRDescriptor:
             self.encode()
 
     def encode(self):
-        # self.packed = struct.pack(self.structformatstr, bytes(self.group,'ascii') , self.task, self.run, self.timestamp)
-        #self.encoded = b"^"*10 + self.rs.encode( self.packed ) + b"."*10
-        # self.encoded = b" "*5 + self.rs.encode( self.packed ) + b" "*5
-        self.encoded =  self.rs.encode( self.__str__() ) 
+        self.packed = struct.pack( self.structformatstr, bytes(self.group,'ascii'), self.task, self.run, self.timestamp )
+        self.encoded =  b"\x7e"*int(self.br/4) + self.rs.encode( self.packed ) + b"\x7e"*int(self.br/8)
+        #*2 the encoded portion maybe?  might try that with higher bitrates...
         return self
 
-    
-    def decode(self):
-        # self.strippedencoded = self.encoded.lstrip(b"^")
-        # self.strippedencoded = self.strippedencoded.rstrip(b".")
-        # self.packed = self.rs.decode( self.strippedencoded )
+    def decodeall(self):
+        self.packets = re.split( b'\x7e+', self.encoded)
+        for pkt in self.packets:
+            self.decode(pkt)
+
+    def decode(self, pkt):
+        if len(pkt) < struct.calcsize( self.structformatstr ):
+            return False
+        # print(pkt)
         try:
-            self.unpacked = self.rs.decode( self.encoded)
-            # self.packed = self.rs.decode( self.encoded)
-            # self.unpacked = struct.unpack_from( self.structformatstr, self.packed)
-            # self.group, self.task, self.run, self.timestamp = self.unpacked
+            self.packed = self.rs.decode( pkt )
+            self.unpacked = struct.unpack_from(self.structformatstr, self.packed)
             self.group, self.task, self.run, self.timestamp = self.unpacked
             self.group = self.group.decode('ascii')
-            self.task = int(self.task)
-            self.run = int(self.run)
+            self.showme()
         except Exception as e:
-            # print(e)
             return False
         return True
 
@@ -74,15 +60,14 @@ class NerveTRDescriptor:
             print("tr sane")
             return True
         else:
-            print(self.task, self.run)
+            # print(self.task, self.run)
             return False
 
     def sanets(self):
         try:
-            # time.time( self.timestamp )
             return self.timestamp > 1467837142 #right now as I code it!
         except Exception as e:
-            # print(e)
+            print(e)
             # print("not sane ts")
             return False
         return True
@@ -94,21 +79,31 @@ class NerveTRDescriptor:
         return self.sanegroup() and self.sanetr() and self.sanets()
 
     def showme(self):
-        print(self.__str__() )
+        print(self.__str__(), "\t", datetime.datetime.fromtimestamp( self.timestamp).strftime('%Y-%m-%d %H:%M:%S') )
 
     def __str__(self):
-        return "%s: %d.%d %f"%(self.group, self.task, self.run, self.timestamp)
+        try:
+            return "%s:  \t%d.%02d  \t%f"%(self.group, self.task, self.run, self.timestamp)
+        except:
+            return "Invalid"
 
 if __name__ == "__main__":
     if sys.argv[1] == "in":
-        with open( sys.argv[2], "rb") as f:
-            data=f.read()
-        n2 = NerveTRDescriptor(data)
-        n2.showme()
+        filename_endings=re.compile('_\d+.txt')
+        for fn in sys.argv[2:]:
+            video_filename = filename_endings.sub("",fn)
+            print(video_filename)
+            with open( fn, "rb") as f:
+                data=f.read()
+            n2 = NerveTRDescriptor(data)
+            print()
     elif sys.argv[1] == "out":
         outfile = "nerveafsk.out"
         n1 = NerveTRDescriptor(sys.argv[2],int(sys.argv[3]),int(sys.argv[4]), time.time() )
         with open( outfile ,"wb") as f:
             f.write(n1.encoded)
-        os.system("minimodem -t 300 --stopbits 3.0 --startbits 3.0 < " + outfile)
+        os.system("minimodem -t %d --stopbits 3.0 --startbits 3.0 < %s"%(n1.br,outfile))
+        os.system("minimodem -t %d --stopbits 3.0 --startbits 3.0 < %s"%(n1.br*10,outfile))
+        os.system("minimodem -t %d --stopbits 3.0 --startbits 3.0 < %s"%(n1.br*10,outfile))
+        os.system("minimodem -t %d --stopbits 3.0 --startbits 3.0 < %s"%(n1.br*10,outfile))
     
