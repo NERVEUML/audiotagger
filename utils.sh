@@ -23,3 +23,11 @@ getoption(){
 	fi
 
 }
+ffmpegcut(){
+	getoption "$1" filein 
+	getoption "$2" fileout
+	getoption "$3" start
+	getoption "$4" end
+	ffmpeg -ss "${start}" -t "${end}" -i "${filein}" -c copy "${fileout}"
+}
+

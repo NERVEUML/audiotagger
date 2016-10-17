@@ -4,7 +4,9 @@
 #	http://stackoverflow.com/questions/3685970/check-if-an-array-contains-a-value
 #	http://www.linuxjournal.com/content/return-values-bash-functions
 
-. utils.sh
+
+IMHERE="$(dirname "$0")"
+. ${IMHERE}/utils.sh
 
 showhelp(){
 	echo $0 '<target_dir[./,...]> <bitrate[120,1200,...]> <force_overwrite[1,0]>'
@@ -14,4 +16,4 @@ getoption "$2" bitrate
 getoption "$3" filext mp4
 getoption "$4" forceoverwrite 0
 
-find "$target_dir" -type f -iname *."$filext" -exec ./tag.sh '{}' "$bitrate" "$forceoverwrite" \;
+find "$target_dir" -type f -iname "*."$filext"" -exec "${IMHERE}/tag.sh" '{}' "$bitrate" "$forceoverwrite" \;

@@ -90,3 +90,7 @@ should result in better transmitted audio quality.
 
 
 
+multimon-ng -c -a AFSK1200
+while [ 1 ]; do x=$(head -n 1 fifo); date -d @"$x"; now=$(date +%s); echo $now-$x | bc -l; done
+	multimon-ng -c -a AFSK1200 |grep --line-buffered -oP '\d+\.\d+' > fifo
+
