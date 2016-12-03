@@ -8,4 +8,4 @@ echo "Make sure direwolf is running: direwolf/direwolf -t 0"
 read
 echo "Okay, starting now..."
 source env/bin/activate
-./gentag.py direwolf 10 "$NAME" "$TASK" "$RUN"
+./gentag.py direwolf 15 "$NAME" "$TASK" "$RUN"
