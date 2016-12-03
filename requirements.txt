@@ -1,0 +1,4 @@
+pynmea2==1.5.3
+pyserial==3.1.1
+reedsolo==0.3
+requests==2.11.1
