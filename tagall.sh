@@ -14,6 +14,8 @@ showhelp(){
 getoption "$1" target_dir
 getoption "$2" bitrate
 getoption "$3" filext mp4
-getoption "$4" forceoverwrite 0
+getoption "$4" folder "."
+getoption "$5" forceoverwrite 0
 
-find "$target_dir" -type f -iname "*."$filext"" -exec "${IMHERE}/tag.sh" '{}' "$bitrate" "$forceoverwrite" \;
+find "$target_dir" -type f -iname "*."$filext"" -exec \
+	"${IMHERE}/tag.sh" '{}' "$bitrate" "$forceoverwrite" "$folder" \;

@@ -6,35 +6,40 @@ IMHERE="$(dirname "$0")"
 getoption "$1" each 
 getoption "$2" bitrate 1200
 getoption "$3" force 0
+getoption "$4" folder "."
 
-echo "$each"
 filext="${each:(-3)}"
+#fphash="$(md5sum "$each" | cut -c 1,10)"
+fpshort="$(dirname "$each" | tr -d '/:_\-\.' )"
+fn="$(basename "$each")"
+neweach="$folder"/"$fpshort"/"$fn"
 
 if [[ "$filext" == "MOV" ]]; then
 	camera="jvc"
 elif [[ "$filext" == "MP4" ]]; then
 	camera="gopro"
 fi
+echo "$each"
 echo " is $camera file"
 
-if [[ $force == 1 || ! -f "${each}.orig.aprs" ]]; then
+if [[ $force == 1 || ! -f "${neweach}.orig.aprs" ]]; then
+	mkdir -p "$folder"/"$fpshort"
+	echo "$each" | tee "$neweach.oldname"
 	if [[ "$camera" == "gopro" ]]; then
-		ffmpeg -i "$each" -vn -acodec copy "$each.aac" > "$each.ffmpeglog1" 2>&1
-		ffmpeg -i "$each.aac" "$each.orig.flac" > "$each.ffmpeglog2" 2>&1
+		ffmpeg -i "$each" -vn -acodec copy "$neweach.aac" > "$neweach.ffmpeglog1" 2>&1
+		ffmpeg -i "$neweach.aac" "$neweach.orig.flac" > "$neweach.ffmpeglog2" 2>&1
 	elif [[ "$camera" == "jvc" ]]; then
-		ffmpeg -i "$each" -vn "$each".orig.flac > "$each.ffmpeglog1" 2>&1
-		#sox -q "$each.orig.flac" "$each.flac" remix 1 0 channels 1 norm
+		ffmpeg -i "$each" -vn "$neweach".orig.flac > "$neweach.ffmpeglog1" 2>&1
+		#sox -q "$neweach.orig.flac" "$neweach.flac" remix 1 0 channels 1 norm
 	fi
-	multimon-ng -c -a AFSK1200 -t flac "$each.orig.flac" > "$each.orig.aprs"
+	multimon-ng -c -a AFSK1200 -t flac "$neweach.orig.flac" > "$neweach.orig.aprs"
 else
 	echo "$each already done"
 fi
-
-#old stuff maybe useful later
-	#sox -q "$each.ogg" "$each.orig.flac" 
-	#sox -q "$each.ogg" "$each.flac" remix 1 0 channels 1 norm
-	#sox -q "$each.ogg" "$each.flac" channels 1 norm
-	#sox -q "$each.ogg" "$each.wav" 
-	#minimodem -r $bitrate --stopbits 3 --startbits 3 -q -f "$each.flac" > "${each}_${bitrate}.txt"
-	#minimodem -r $bitrate -q -f "$each.flac" > "${each}_${bitrate}.txt"
-	#rm -f "$each.aac" "$each.ogg" "$each.flac" "$each.wav"
+#grep -ir "ssci 1a 2.1" */*/*.aprs |cut -d : -f 1 |xargs -n 1 basename |cut -f 1,2 -d . |sort -u
+#for each in *; do echo "$each"; mkdir -p "$each".d; while read line; do echo "$line"; ln -s "$line" "$each".d; done <"$each"; done
+#for file in *.d/*; do readlink "$file"; done
+#removelink() {
+#  [ -L "$1" ] && cp --remove-destination "$(readlink "$1")" "$1"
+#}
+#for file in *.d/*; do removelink "$file"; done

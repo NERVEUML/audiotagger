@@ -23,3 +23,9 @@ tag(){
 		ln -s "$file".* "$name"
 	done
 }
+#pathhash(){
+#	echo ""|md5sum |cut -c 1-8
+#}
+#
+#
+#
