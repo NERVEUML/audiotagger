@@ -1,31 +1,28 @@
 #!/bin/bash
 
-demod(){
-	for file in "$@"; do
-		ffmpeg -i "$file" "$file".wav
-		multimon-ng -c -a AFSK1200 -t wav "$file".wav > "$file".demod
-		cat "$file".demod | grep -v AFSK1200 |cut -d " " -f 2 > "$file".tags
-	done
+IMHERE="$(dirname "$0")"
+. ${IMHERE}/utils.sh
+
+
+showhelp(){
+        echo $0 '<target_dir>'
 }
-tag(){
-	for file in "$@"; do
-		echo
-		echo "$file"
-		most="$(cat "$file".tags |cut -d ":" -f 1 |sort |uniq -c | sort -nr |head -n 1)"
-		if [[ "$most" == "" ]]; then
-			echo -e "\tThis does not appear to have any tags."
-			continue
-		fi
-		name="$(echo "$most" |grep -oE '\w+_.+\..+')"
-		echo -e "\tMoving $file to $name,\t $most"
-		mkdir -p "$name"
-		ln -s "$file" "$name"
-		ln -s "$file".* "$name"
-	done
-}
-#pathhash(){
-#	echo ""|md5sum |cut -c 1-8
-#}
-#
-#
-#
+getoption "$1" target_dir "./"
+getoption "$2" aprsfilext "aprs"
+getoption "$3" runsfilext "runs"
+getoption "$4" runlist "runlist.txt"
+getoption "$5" videolist "videolist.txt"
+
+find "$target_dir" -type f -iname "*."$aprsfilext"" -exec \
+	bash -c "grep AFSK -b1 {} | ~mike/audiotagger/by_tag.py |tee {}.runs " \;
+
+find "$target_dir" -iname "*.$runsfilext" -exec cat '{}' \; |sort  |cut -f 1 -d ":" |uniq > "$target_dir"/"$runlist"
+while read runname; do
+	rundir="$target_dir"/"$runname"
+	mkdir -p "$rundir"
+	grep -iRl --include=*."$runsfilext" "$runname" "$target_dir" > "$rundir"/"$videolist"
+done < "$target_dir"/"$runlist"
+
+find "$target_dir" -iname "$videolist" -exec ~mike/audiotagger/filelist_to_symlinks.sh '{}' \;
+
+#while read run; do rm -r $run; done < runlist.txt

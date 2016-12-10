@@ -9,6 +9,8 @@ import re
 import sys
 import warnings
 import fileinput
+import datetime
+from itertools import groupby
 
 packets = r"{{" + \
             "(?P<type>\w)" +"\s+"+ \
@@ -29,11 +31,12 @@ linematch = r"(?P<l>%(timematch)s|%(headermatch)s|%(packetmatch)s)" % locals()
 
 fullmatch = r"%(byteoffset)s%(matchorcontext)s%(linematch)s" % locals()
 
-print( fullmatch )
-
 #(\d+)([:-])((Time: (\d+.\d+))|(AFSK\w+: \w+ (\S+) to (\S+))|({{.*\n))
 
-class packet:
+def runname( team, task, run ):
+    return "%s_%s_%s"%( team, task, run )
+
+class Packet:
     def __init__(self, filename, threelines ):
         self.threelines = threelines
         self.filename = filename
@@ -77,11 +80,14 @@ class packet:
         self.epochstr = parsed_pkt.group("epoch")
         self.comment = parsed_pkt.group("comment")
         self.epoch = float( self.epochstr )
+        self.datetime = datetime.datetime.fromtimestamp( self.epoch )
+        self.runname = runname( self.team, self.task, self.run )
 
     def __str__(self):
-        return("%s +%f\t%s %s %s # %s"%(
-            self.filename,
+        return("%s +% 9.2f  @%.2f \t%s %s %s # %s"%(
+            os.path.basename(self.filename),
             self.timeoffset,
+            self.epoch,
             self.team,
             self.task,
             self.run,
@@ -89,20 +95,48 @@ class packet:
         ))
 
 
+class Run:
+    def __init__(self, team, task, run, packets):
+        self.team = team
+        self.task = task
+        self.run = run
+        self.packets = sorted( packets, key=lambda x: x.epoch )
+        #self.files = {p.filename for p in self.packets }
+        self.calc()
+
+    def calc(self):
+        self.startoffset = self.packets[0].timeoffset
+        self.endoffset = self.packets[-1].timeoffset
+        self.fileduration = self.endoffset - self.startoffset
+
+        self.start = self.packets[0].datetime
+        self.end = self.packets[-1].datetime
+        self.duration = (self.end - self.start).total_seconds()
+
+    def __str__(self):
+        return ("%s: \t+%d\t%6.2fs"%(
+            runname(self.team, self.task, self.run),
+            self.startoffset,
+            self.duration
+            ))
+            
+            
+    
     
     
     
 def parselines(filename, lines ):
     tlines = []
+    packets = []
     ecount = 0
     for line in lines:
         #print(len(tlines), line)
         if line.strip() == "--":
             try:
-                p = packet( filename, tlines )
-                print( p )
+                p = Packet( filename, tlines )
+                packets.append(p)
             except Exception as e:
-                print(e)
+                #print(e)
                 ecount+=1
             tlines=[]
         else:
@@ -110,10 +144,21 @@ def parselines(filename, lines ):
     if ecount >= 5:
         #5 is ballpark estimate of max number of three lines that shouldn't meet our expectations
         warnings.warn("The input file may not be matching our expectations, check input")
+    packets.sort(key=lambda x: x.runname )
+    return packets
 
 def main( argv ):
-    parselines( 'stdin', fileinput.input() )
-
+    packets = parselines( 'stdin', fileinput.input() )
+    runs = {}
+    for k,v in groupby( packets, lambda x: x.runname ):
+        plist = list(v)
+        team = plist[0].team
+        run = plist[0].run
+        task = plist[0].task
+        runs[k] = Run( team, task, run, plist )
+        print( runs[k] )
+    
+        
 
 
 def test():
