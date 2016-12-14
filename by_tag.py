@@ -7,10 +7,21 @@
 import os
 import re
 import sys
+import json
 import warnings
 import fileinput
 import datetime
+import hashlib
 from itertools import groupby
+
+
+
+#if a class has a tojson method, use that for encoding it.
+from json import JSONEncoder
+def _default(self, obj):
+    return getattr(obj.__class__, "tojson", _default.default)(obj)
+_default.default = JSONEncoder().default
+JSONEncoder.default = _default
 
 packets = r"{{" + \
             "(?P<type>\w)" +"\s+"+ \
@@ -35,6 +46,15 @@ fullmatch = r"%(byteoffset)s%(matchorcontext)s%(linematch)s" % locals()
 
 def runname( team, task, run ):
     return "%s_%s_%s"%( team, task, run )
+
+def get_orig_fn_from_aprs_file( aprsdatafilename ):
+    aprsdataending = ".orig.aprs"
+    oldnameending = ".oldname"
+    assert aprsdatafilename.endswith( aprsdataending )
+    oldnamefile = aprsdatafilename[: - len(aprsdataending)] + oldnameending
+    with open(oldnamefile,"r") as f:
+        return f.read().strip()
+
 
 class Packet:
     def __init__(self, filename, threelines ):
@@ -101,7 +121,13 @@ class Run:
         self.task = task
         self.run = run
         self.packets = sorted( packets, key=lambda x: x.epoch )
-        #self.files = {p.filename for p in self.packets }
+        self.runname = runname(self.team, self.task, self.run)
+        self.files = {p.filename for p in self.packets }
+        #originally written for multiple files
+        #but used for only one at a time now
+        assert len(self.files) == 1
+        self.file = [p for p in self.files][0]
+        self.videofile = [get_orig_fn_from_aprs_file(p) for p in self.files ][0]
         self.calc()
 
     def calc(self):
@@ -112,14 +138,36 @@ class Run:
         self.start = self.packets[0].datetime
         self.end = self.packets[-1].datetime
         self.duration = (self.end - self.start).total_seconds()
+    
+    def tojson(self):
+        me = {
+            "runname": self.runname,
+            "team":self.team,
+            "task":self.task,
+            "run":self.run,
+            "start":self.start.isoformat(),
+            "startoffset":self.startoffset,
+            "duration":self.duration,
+            "file": self.file,
+            "videofile": self.videofile
+            }
+        return me
 
     def __str__(self):
-        return ("%s: \t+%d\t%6.2fs"%(
-            runname(self.team, self.task, self.run),
+        return ("%s %d %6.2f"%(
+            self.runname,
             self.startoffset,
             self.duration
             ))
-            
+    def ffmpegme(self):
+        out = "_".join([ 
+                    self.runname, 
+                    hashlib.md5(self.videofile).hexdigest()[:10]
+                    ]) + self.videofile[-4:] 
+        startoffset = self.startoffset - 30 #offset to allow context
+        duration = self.duration + 60 #offset for context, and some more because not all packets decoded properly on all videos
+        videofile = self.videofile
+        return "ffmpeg -ss %(startoffset)d -i %(videofile)s -to %(duration)d -c copy %(out)s"% locals()
             
     
     
@@ -148,7 +196,21 @@ def parselines(filename, lines ):
     return packets
 
 def main( argv ):
-    packets = parselines( 'stdin', fileinput.input() )
+    #TODO real argument handling
+    jsonfile = None
+    ffmpegfile = None
+    if len(argv) < 2:
+        print("provide a filename")
+        sys.exit(1)
+    filename = argv[1]
+    if len(argv) > 2:
+        for x in argv[2:]:
+            if x.endswith(".json"):
+                jsonfile = x
+            if x.endswith(".ffmpeg"):
+                ffmpegfile = x
+    #packets = parselines( 'stdin', fileinput.input() ) #will read lines from stdin or from filenames as arguments
+    packets = parselines( filename, sys.stdin.readlines() ) #just reads lines from stdin
     runs = {}
     for k,v in groupby( packets, lambda x: x.runname ):
         plist = list(v)
@@ -156,7 +218,14 @@ def main( argv ):
         run = plist[0].run
         task = plist[0].task
         runs[k] = Run( team, task, run, plist )
-        print( runs[k] )
+        print(runs[k])
+    if jsonfile:
+        with open(jsonfile,"w") as f:
+            f.write( json.dumps( runs ))
+    if ffmpegfile:
+        with open(ffmpegfile,"w") as f:
+            for runname,run in runs.items():
+                f.write("%s\n"%(run.ffmpegme()))
     
         
 

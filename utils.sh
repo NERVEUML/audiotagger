@@ -27,8 +27,19 @@ ffmpegcut(){
 	getoption "$1" filein 
 	getoption "$2" fileout
 	getoption "$3" start
+	#seconds offset, like "379" for 379 seconds into a file
 	getoption "$4" end
+	#duration in seconds, like "240" for an output file (!) that is 240 seconds long
+	return
 	ffmpeg -ss "${start}" -t "${end}" -i "${filein}" -c copy "${fileout}"
+}
+get_orig_fn(){
+	getoption "$1" rundata
+	#./tags/mntfladata201611unorganizedmondaygopropci000000140usb062210scsi0000part1DCIM100GOPRO/GP010003.MP4.orig.aprs.runs
+	#.orig.aprs.runs = 15
+	nameholder="${rundata::-15}"
+	orig_filename="$(cat "$nameholder".oldname)"
+	echo "$orig_filename"
 }
 #for each in *.MP4; do echo "$each"; ffmpeg -i "$each" "$each".flac; done
 #for each in *.MP4; do echo "$each"; multimon-ng -c -a AFSK1200 -t flac "$each.flac" > "$each.aprs"; done
