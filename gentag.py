@@ -5,8 +5,16 @@ import sys
 import time
 import aprs
 import signal
+import socket
 import datetime
 import logging
+
+try:
+    from gps3.agps3threaded import AGPS3mechanism
+    nogps = False
+except:
+    nogps = True
+    pass
 
 class nerveframetypes:
     tag = "T"
@@ -21,7 +29,7 @@ def packetize_me(me, you, path, frametype, name, task, run, data=None, now=None)
     if not now:
         now=time.time()
 
-    frametxt = "{{%s %s %s %s %.03f%s"%( frametype, name, task, run, now, data )
+    frametxt = "{{%s %s %s %s %.2f%s"%( frametype, name, task, run, now, data )
     framestr = "%s>%s,%s:%s"%( me, you, path, frametxt )
     frame = aprs.Frame( framestr )
     return frame
@@ -41,21 +49,32 @@ path = 'WIDE1-1'
 starttime = None
 
 if __name__ == "__main__":
+    if not nogps:
+        try:
+            agps_thread = AGPS3mechanism()
+            agps_thread.stream_data()
+            agps_thread.run_thread()
+        except socket.error as e:
+            print("GPSD not running?")
+            print(e)
+            nogps = True
+
     k = aprs.TCPKISS("localhost",8001)
-    k._logger.setLevel(logging.DEBUG)
+    #k._logger.setLevel(logging.WARNING)
+    for key in logging.Logger.manager.loggerDict:
+        logging.getLogger(key).setLevel(logging.WARNING)
+        #print(key)
     k.start()
 
-    delay = int( sys.argv[1] )
+    delay = float( sys.argv[1] )
     name = sys.argv[2]
     task = sys.argv[3]
     run = sys.argv[4]
 
     def signal_handler(signal, frame):
         print("Sending last frames....")
-        endtime = send_many_frames(me, you, path, nerveframetypes.end, name, task, run, "END", None,  2)
-        f = packetize_me( me, you, path, nerveframetypes.start, name, task, run, "START", starttime )
-        k.write( f )
-        send_many_frames(me, you, path, nerveframetypes.end, name, task, run, "END", endtime,  3)
+        now = time.time()
+        endtime = send_many_frames(me, you, path, nerveframetypes.end, name, task, run, "END, duration %.2f"%(now - starttime), None,  5)
         time.sleep(1)
         print("Sent, exiting!")
         sys.exit(0)
@@ -66,9 +85,18 @@ if __name__ == "__main__":
     nexttag = now + delay
     nextstarttag = now + delay
     while 1:
+        print(".")
+        if not nogps:
+            print('---------------------')
+            print(                   agps_thread.data_stream.time)
+            print('Lat:{}   '.format(agps_thread.data_stream.lat))
+            print('Lon:{}   '.format(agps_thread.data_stream.lon))
+            print('Speed:{} '.format(agps_thread.data_stream.speed))
+            print('Course:{}'.format(agps_thread.data_stream.track))
+            print('---------------------')
         now = time.time()
         if now >= nexttag:
-            frame = packetize_me( me, you, path, nerveframetypes.tag, name, task, run )
+            frame = packetize_me( me, you, path, nerveframetypes.tag, name, task, run, "running for %.2f"%( now - starttime ) )
             print(frame)
             k.write( frame )
             nexttag = now + delay
@@ -76,7 +104,7 @@ if __name__ == "__main__":
             frame = packetize_me( me, you, path, nerveframetypes.start, name, task, run, "START", starttime )
             print(frame)
             k.write( frame )
-            nextstarttag = now + delay*7
-        time.sleep( delay/8 )
+            nextstarttag = now + delay*3
+        time.sleep( delay/16 )
 
     
