@@ -34,6 +34,12 @@ work). On the decoding and sorting side, we use
 [multimon-ng](https://github.com/EliasOenal/multimon-ng), where our fork
 outputs offsets into a file being decoded for APRS.
 
+```
+virtualenv -p python2 env
+source env/bin/activate
+pip install -r requirements.txt
+```
+
 Then there's a bunch of fragile, hacky code for decoding, organizing,
 and cutting video files!
 
