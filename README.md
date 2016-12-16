@@ -55,3 +55,9 @@ Since it's all APRS packets, there's suddenly a lot of capability for tagging vi
 with location, weather, etc. And, since it's still ultimately an audio
 track, you can always key up the correct channel with a walkie talkie
 and save yourself some verbal notes or comments.
+
+
+Usage
+-----
+Tags will be offset from the real world time - you can deal with this by estimating the latency (includes tx of preamble frame flags, etc) and then trying to correct the timestamps sent, or you can deal with it later. Packets are decoded at the end, so the timestamp tag offset is largely the tx preamble, and the length of the packet (around 2.5s for me, for a number of reasons).
+The offset can be worse (especially when sending many packets at once), but is largely consistent across many packets.

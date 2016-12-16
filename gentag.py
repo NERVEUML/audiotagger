@@ -4,39 +4,41 @@ import os
 import sys
 import time
 import aprs
+import signal
 import datetime
 import logging
 
-def packetize_me(me, you, path, name, task, run, data=None, now=None):
+class nerveframetypes:
+    tag = "T"
+    start = "S"
+    end = "E"
+
+def packetize_me(me, you, path, frametype, name, task, run, data=None, now=None):
     if data == None:
         data = ""
     else:
         data = " " + str(data)
-    frametypes={
-            "tag":"T",
-            "start":"S",
-            }
     if not now:
         now=time.time()
-        frametype="tag"
-    else:
-        frametype="start"
-    frametxt = "{{%s %s %s %s %.03f%s"%(frametypes[frametype], name, task, run, now, data )
+
+    frametxt = "{{%s %s %s %s %.03f%s"%( frametype, name, task, run, now, data )
     framestr = "%s>%s,%s:%s"%( me, you, path, frametxt )
     frame = aprs.Frame( framestr )
     return frame
 
-def send_event_start_frames(name, task, run, data=None, number_of_frames=5):
-    print("Sending event start frames, count=%d"%( number_of_frames) )
-    now=time.time()
+def send_many_frames( me, you, path, frametype, name, task, run, data=None, now=None, number_of_frames=5):
+    if not now:
+        now=time.time()
     for i in range(number_of_frames):
-        frame = packetize_me( me, you, path, name, task, run, data, now )
+        frame = packetize_me( me, you, path, frametype, name, task, run, data, now )
         k.write( frame )
         print(frame)
+    return now
 
 me = "WQYC60-9"
 you = "GPSLL" #laptop
 path = 'WIDE1-1'
+starttime = None
 
 if __name__ == "__main__":
     k = aprs.TCPKISS("localhost",8001)
@@ -48,13 +50,33 @@ if __name__ == "__main__":
     task = sys.argv[3]
     run = sys.argv[4]
 
+    def signal_handler(signal, frame):
+        print("Sending last frames....")
+        endtime = send_many_frames(me, you, path, nerveframetypes.end, name, task, run, "END", None,  2)
+        f = packetize_me( me, you, path, nerveframetypes.start, name, task, run, "START", starttime )
+        k.write( f )
+        send_many_frames(me, you, path, nerveframetypes.end, name, task, run, "END", endtime,  3)
+        time.sleep(1)
+        print("Sent, exiting!")
+        sys.exit(0)
 
-    send_event_start_frames( name, task, run, "START", 6)
+    signal.signal(signal.SIGINT, signal_handler)
+    starttime = send_many_frames( me, you, path, nerveframetypes.start, name, task, run, "START", None, 6)
+    now = time.time()
+    nexttag = now + delay
+    nextstarttag = now + delay
     while 1:
-        frame = packetize_me( me, you, path, name, task, run )
-        print(frame)
-        k.write( frame )
-        print(frame)
-        time.sleep( delay )
+        now = time.time()
+        if now >= nexttag:
+            frame = packetize_me( me, you, path, nerveframetypes.tag, name, task, run )
+            print(frame)
+            k.write( frame )
+            nexttag = now + delay
+        if now >= nextstarttag:
+            frame = packetize_me( me, you, path, nerveframetypes.start, name, task, run, "START", starttime )
+            print(frame)
+            k.write( frame )
+            nextstarttag = now + delay*7
+        time.sleep( delay/8 )
 
     
