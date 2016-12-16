@@ -38,6 +38,12 @@ outputs offsets into a file being decoded for APRS.
 virtualenv -p python2 env
 source env/bin/activate
 pip install -r requirements.txt
+pushd ..
+git clone https://github.com/ampledata/kiss.git
+git clone https://github.com/ampledata/aprs.git 
+popd
+ln -s ../kiss/kiss
+ln -s ../aprs/aprs
 ```
 
 Then there's a bunch of fragile, hacky code for decoding, organizing,
