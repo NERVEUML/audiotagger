@@ -31,7 +31,6 @@ def send_event_start_frames(name, task, run, data=None, number_of_frames=5):
     now=time.time()
     for i in range(number_of_frames):
         frame = packetize_me( me, you, path, name, task, run, data, now )
-        import pdb; pdb.set_trace()
         k.write( frame )
         print(frame)
 
