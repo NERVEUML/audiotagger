@@ -19,6 +19,7 @@ except:
 class nerveframetypes:
     tag = "T"
     start = "S"
+    startreminder = "R"
     end = "E"
 
 def packetize_me(me, you, path, frametype, name, task, run, data=None, now=None):
@@ -101,7 +102,7 @@ if __name__ == "__main__":
             k.write( frame )
             nexttag = now + delay
         if now >= nextstarttag:
-            frame = packetize_me( me, you, path, nerveframetypes.start, name, task, run, "START", starttime )
+            frame = packetize_me( me, you, path, nerveframetypes.startreminder, name, task, run, "startreminder", starttime )
             print(frame)
             k.write( frame )
             nextstarttag = now + delay*3
