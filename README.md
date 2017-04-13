@@ -30,6 +30,12 @@ Requirements
 We use [Direwolf](https://github.com/wb2osz/direwolf) for the TNC,
 connected to a Signalink USB (though any form of radio interface would
 work). On the decoding and sorting side, we use
+**For Ubuntu**
+To Get Direwolf to work properly please run 
+```
+apt-get install libasound-dev
+
+```
 [a fork](https://github.com/NERVEUML/multimon-ng) of
 [multimon-ng](https://github.com/EliasOenal/multimon-ng), where our fork
 outputs offsets into a file being decoded for APRS.
