@@ -34,6 +34,8 @@ work). On the decoding and sorting side, we use
 [multimon-ng](https://github.com/EliasOenal/multimon-ng), where our fork
 outputs offsets into a file being decoded for APRS.
 
+On .deb systems, Direwolf requires the `libasound-dev` package during compilation.
+
 ```
 virtualenv -p python2 env
 source env/bin/activate
