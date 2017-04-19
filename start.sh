@@ -4,7 +4,7 @@ NAME="$1"
 TASK="$2"
 RUN="$3"
 
-echo "Make sure direwolf is running: direwolf/direwolf -t 0"
+echo "Make sure direwolf is running: direwolf/direwolf -t 0 -c direwolf/direwolf.conf"
 read
 echo "Okay, starting now..."
 source env/bin/activate
