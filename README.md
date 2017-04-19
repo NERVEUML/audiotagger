@@ -61,3 +61,13 @@ Usage
 -----
 Tags will be offset from the real world time - you can deal with this by estimating the latency (includes tx of preamble frame flags, etc) and then trying to correct the timestamps sent, or you can deal with it later. Packets are decoded at the end, so the timestamp tag offset is largely the tx preamble, and the length of the packet (around 2.5s for me, for a number of reasons).
 The offset can be worse (especially when sending many packets at once), but is largely consistent across many packets.
+
+direwolf.conf
+-------------
+```
+CHANNEL 0
+MYCALL ......
+DWAIT 0
+TXDELAY 75
+```
+
