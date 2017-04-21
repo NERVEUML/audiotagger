@@ -14,5 +14,9 @@ for folder in "$target_dir"/*; do
 		continue;
 	fi
 	echo "${IMHERE}"/organize.sh "$folder"
-	"${IMHERE}"/organize.sh "$folder"
+	"${IMHERE}"/organize.sh "$folder" 2>&1 >> "$folder".organization_log &
 done
+echo "Running...will return when complete"
+jobs -l
+wait
+echo "Complete"
