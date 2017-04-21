@@ -1,7 +1,7 @@
 #!/bin/bash
 
 IMHERE="$(dirname "$0")"
-. ${IMHERE}/utils.sh
+. "${IMHERE}"/utils.sh
 
 
 showhelp(){

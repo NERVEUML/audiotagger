@@ -1,7 +1,7 @@
 #!/bin/bash
 
 IMHERE="$(dirname "$0")"
-. ${IMHERE}/utils.sh
+. "${IMHERE}"/utils.sh
 
 getoption "$1" each 
 getoption "$2" bitrate 1200
@@ -32,7 +32,7 @@ if [[ $force == 1 || ! -f "${neweach}.orig.aprs" ]]; then
 		ffmpeg -i "$each" -vn "$neweach".orig.flac > "$neweach.ffmpeglog1" 2>&1
 		#sox -q "$neweach.orig.flac" "$neweach.flac" remix 1 0 channels 1 norm
 	fi
-	multimon-ng -c -a AFSK1200 -t flac "$neweach.orig.flac" > "$neweach.orig.aprs"
+	"${IMHERE}"/multimon-ng/multimon-ng -c -a AFSK1200 -t flac "$neweach.orig.flac" > "$neweach.orig.aprs"
 else
 	echo "$each already done"
 fi
