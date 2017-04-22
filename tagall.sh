@@ -13,7 +13,7 @@ showhelp(){
 }
 getoption "$1" target_dir
 getoption "$2" filext mp4
-getoption "$3" folder "."
+getoption "$3" folder "." #where to put working files, allows having them separate from the video files
 getoption "$4" forceoverwrite 0
 
 find "$target_dir" -type f -iname "*."$filext"" -exec \

@@ -5,7 +5,7 @@ IMHERE="$(dirname "$0")"
 
 getoption "$1" each 
 getoption "$2" force 0
-getoption "$3" folder "."
+getoption "$3" folder "." #where to put the working files, allows having them somewhere other than with video files
 
 filext="${each:(-3)}"
 #fphash="$(md5sum "$each" | cut -c 1,10)"
