@@ -24,3 +24,7 @@ find "$target_dir" -iname "$videolist" -exec ~mike/audiotagger/filelist_to_symli
 
 #while read run; do rm -r $run; done < runlist.txt
 #find ./ -iname "*.runs" -print -exec cat '{}' \;
+
+
+#find all files in a directory
+# for each file

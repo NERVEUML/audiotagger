@@ -27,8 +27,9 @@ get_orig_fn(){
 	getoption "$1" rundata
 	#./tags/mntfladata201611unorganizedmondaygopropci000000140usb062210scsi0000part1DCIM100GOPRO/GP010003.MP4.orig.aprs.runs
 	#.orig.aprs.runs = 15
-	nameholder="${rundata::-15}"
+	nameholder="${rundata::-15}" #cut last 15 characters off
 	orig_filename="$(cat "$nameholder".oldname)"
+	#use base path and add .oldname, which is a file containing the original path
 	echo "$orig_filename"
 }
 runsfilext="runs"

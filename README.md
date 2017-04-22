@@ -35,7 +35,13 @@ To generate audio tags:
 ./gentag 15 nerve stairs_45 1.1
 ```
 
-To organize and cut video files:
+To extract tags from video files:
+
+```
+./tagall.sh foldername
+```
+
+To organize and cut video files that have had tags extracted:
 
 ```
 ./organize.sh foldername
@@ -116,3 +122,39 @@ DWAIT 0
 TXDELAY 75
 ```
 
+
+Process
+------
+```
+tagall.sh 
+	runs tag.sh on all files of a particular fileextension within a target directory
+
+tag.sh 
+	rips the audio from the file into a flac, and then 
+		file.mp4 -> file.mp4.orig.flac
+	runs the flac past a patched multimon-ng that 
+		outputs file offsets during the decoding process.
+			file.mp4 -> file.mp4.orig.aprs
+organize.sh 
+	finds all the .aprs files, 
+	`grep AFSK -b1`s them, 
+	pipes that output through by_tag.py which 
+		parses packets into run data and 
+			.aprs -> .runs.json
+			.aprs -> .runs
+		generates ffmpeg command lines for each run for each video
+			.aprs -> runs.ffmpeg
+	creates lists of runs in the target directory
+	for each run in the list of runs
+		creates lists of uncut videos in that run
+	calls filelist_to_symlinks.sh which
+		converts a list of filenames to symlinks (relies on get_orig_fn in utils.sh)
+		
+cutter.sh
+	finds all the .ffmpeg files (which contain ffmpeg lines to cut videos)
+		and runs each command line
+
+org_and_cut.sh
+	runs first organize.sh and then cutter.sh on subdirectories of a target directory in parallel
+
+```
