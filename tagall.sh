@@ -9,12 +9,12 @@ IMHERE="$(dirname "$0")"
 . ${IMHERE}/utils.sh
 
 showhelp(){
-	echo $0 'target_dir file_extension_to_work_on folder 1_or_0_to_force '
+	echo $0 'target_dir file_extension_to_work_on workingdir 1_or_0_to_force '
 }
 getoption "$1" target_dir
 getoption "$2" filext mp4
-getoption "$3" folder "." #where to put working files, allows having them separate from the video files
+getoption "$3" workingdir "." #where to put working files, allows having them separate from the video files
 getoption "$4" forceoverwrite 0
 
 find "$target_dir" -type f -iname "*."$filext"" -exec \
-	"${IMHERE}/tag.sh" '{}' "$forceoverwrite" "$folder" \;
+	"${IMHERE}/tag.sh" '{}' "$forceoverwrite" "$workingdir" \;

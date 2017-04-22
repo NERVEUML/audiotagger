@@ -5,13 +5,13 @@ IMHERE="$(dirname "$0")"
 
 getoption "$1" each 
 getoption "$2" force 0
-getoption "$3" folder "." #where to put the working files, allows having them somewhere other than with video files
+getoption "$3" workingdir "." #where to put the working files, allows having them somewhere other than with video files
 
 filext="${each:(-3)}"
 #fphash="$(md5sum "$each" | cut -c 1,10)"
 fpshort="$(dirname "$each" | tr -d '/:_\-\.' )"
 fn="$(basename "$each")"
-neweach="$folder"/"$fpshort"/"$fn"
+neweach="$workingdir"/"$fpshort"/"$fn"
 
 if [[ "$filext" == "MOV" ]]; then
 	camera="jvc"
@@ -22,7 +22,7 @@ echo "$each"
 echo " is $camera file"
 
 if [[ $force == 1 || ! -f "${neweach}.orig.aprs" ]]; then
-	mkdir -p "$folder"/"$fpshort"
+	mkdir -p "$workingdir"/"$fpshort"
 	echo "$each" | tee "$neweach.oldname"
 	if [[ "$camera" == "gopro" ]]; then
 		ffmpeg -i "$each" -vn -acodec copy "$neweach.aac" > "$neweach.ffmpeglog1" 2>&1
