@@ -4,9 +4,8 @@ IMHERE="$(dirname "$0")"
 . "${IMHERE}"/utils.sh
 
 getoption "$1" each 
-getoption "$2" bitrate 1200
-getoption "$3" force 0
-getoption "$4" folder "."
+getoption "$2" force 0
+getoption "$3" folder "."
 
 filext="${each:(-3)}"
 #fphash="$(md5sum "$each" | cut -c 1,10)"

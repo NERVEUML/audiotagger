@@ -9,13 +9,12 @@ IMHERE="$(dirname "$0")"
 . ${IMHERE}/utils.sh
 
 showhelp(){
-	echo $0 '<target_dir[./,...]> <bitrate[120,1200,...]> <force_overwrite[1,0]>'
+	echo $0 'target_dir file_extension_to_work_on folder 1_or_0_to_force '
 }
 getoption "$1" target_dir
-getoption "$2" bitrate
-getoption "$3" filext mp4
-getoption "$4" folder "."
-getoption "$5" forceoverwrite 0
+getoption "$2" filext mp4
+getoption "$3" folder "."
+getoption "$4" forceoverwrite 0
 
 find "$target_dir" -type f -iname "*."$filext"" -exec \
-	"${IMHERE}/tag.sh" '{}' "$bitrate" "$forceoverwrite" "$folder" \;
+	"${IMHERE}/tag.sh" '{}' "$forceoverwrite" "$folder" \;

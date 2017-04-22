@@ -31,6 +31,14 @@ get_orig_fn(){
 	orig_filename="$(cat "$nameholder".oldname)"
 	echo "$orig_filename"
 }
+runsfilext="runs"
+aprsfilext="aprs"
+ffmpegext="ffmpeg"
+ffmpeglist="ffmpeg_commands.txt"
+runlist="runlist.txt"
+videolist="videolist.txt"
+
+
 #for each in *.MP4; do echo "$each"; ffmpeg -i "$each" "$each".flac; done
 #for each in *.MP4; do echo "$each"; multimon-ng -c -a AFSK1200 -t flac "$each.flac" > "$each.aprs"; done
 #cat *.aprs |grep -i {{T | cut -d " " -f 2-4 |sort -u

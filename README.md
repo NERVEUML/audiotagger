@@ -25,6 +25,44 @@ video based on the decoded packets. Each of these features eliminate
 processing that was completely human labor in the past, saving time
 and money.
 
+Usage
+-----
+
+To generate audio tags:
+
+```
+./direwolf/direwolf -t 0 -c direwolf/direwolf.conf &
+./gentag 15 nerve stairs_45 1.1
+```
+
+To organize and cut video files:
+
+```
+./organize.sh foldername
+./cutter.sh foldername
+```
+
+These scripts will run tasks serially without regard to further folder structure (video files are identified by file extension using GNU find).
+
+Need it faster, or more parallel on large video sets? Read on.
+
+We have video that is typically copied into this folder structure:
+
+* 2017.01
+ * monday
+ * tuesday
+ * wednesday
+ * thursday
+ * friday
+
+So there's an `org_and_cut.sh` which will start parallel jobs for each of the subfolders of the target directory.
+
+```
+./org_and_cut.sh 2017.01/
+```
+
+
+
 Requirements
 ------------
 We use [Direwolf](https://github.com/wb2osz/direwolf) for the TNC,
@@ -53,13 +91,18 @@ and cutting video files!
 
 APRS
 ----
-Since it's all APRS packets, there's suddenly a lot of capability for tagging videos
-with location, weather, etc. And, since it's still ultimately an audio
-track, you can always key up the correct channel with a walkie talkie
-and save yourself some verbal notes or comments.
+Since it's all APRS packets, there's suddenly a lot of capability
+for tagging videos with location, weather, etc. And, since it's still
+ultimately an audio track, you can always key up the correct channel with
+a walkie talkie and save yourself some verbal notes or comments. We've
+found Adobe Premiere likes very much the shared audio channel for
+automatic synchronization, if you can't use these scripts but still have
+tagged video.  The Premiere synchronization seems to work well even if
+the audio doesn't quite come through (say, if you messed up the audio
+input settings on all the cameras).
 
 
-Usage
+Hints
 -----
 Tags will be offset from the real world time - you can deal with this by estimating the latency (includes tx of preamble frame flags, etc) and then trying to correct the timestamps sent, or you can deal with it later. Packets are decoded at the end, so the timestamp tag offset is largely the tx preamble, and the length of the packet (around 2.5s for me, for a number of reasons).
 The offset can be worse (especially when sending many packets at once), but is largely consistent across many packets.
