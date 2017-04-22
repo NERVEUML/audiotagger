@@ -50,6 +50,17 @@ path = 'WIDE1-1'
 starttime = None
 
 if __name__ == "__main__":
+    if len(sys.argv) < 5:
+        print("""
+        ./gentag.py delay_in_seconds team_name task_name run_id
+        """)
+        sys.exit(1)
+    delay = float( sys.argv[1] )
+    name = sys.argv[2]
+    task = sys.argv[3]
+    run = sys.argv[4]
+
+
     if not nogps:
         try:
             agps_thread = AGPS3mechanism()
@@ -60,17 +71,24 @@ if __name__ == "__main__":
             print(e)
             nogps = True
 
+
     k = aprs.TCPKISS("localhost",8001)
+
     #k._logger.setLevel(logging.WARNING)
     for key in logging.Logger.manager.loggerDict:
         logging.getLogger(key).setLevel(logging.WARNING)
         #print(key)
-    k.start()
 
-    delay = float( sys.argv[1] )
-    name = sys.argv[2]
-    task = sys.argv[3]
-    run = sys.argv[4]
+    while 1:
+        try:
+            #aprs tcpkiss, start connection
+            k.start()
+            break
+        except socket.error as e:
+            print(e)
+            print("Retrying %s:%d"%(k.address))
+        time.sleep(2)
+    
 
     def signal_handler(signal, frame):
         print("Sending last frames....")

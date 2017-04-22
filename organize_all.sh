@@ -13,10 +13,19 @@ for folder in "$target_dir"/*; do
 		#echo "skipping $folder since it's not a folder"
 		continue;
 	fi
-	echo "${IMHERE}"/organize.sh "$folder"
 	"${IMHERE}"/organize.sh "$folder" 2>&1 >> "$folder".organization_log &
 done
-echo "Running...will return when complete"
+echo "Running organization...will return when complete"
 jobs -l
 wait
-echo "Complete"
+for folder in "$target_dir"/*; do
+	if [[ ! -d "$folder" ]]; then
+		#echo "skipping $folder since it's not a folder"
+		continue;
+	fi
+	"${IMHERE}"/cutter.sh "$folder" 2>&1 >> "$folder".cutter_log &
+done
+echo "Running ffmpeg cuts...will return when complete"
+jobs -l
+wait
+echo "Completed organization and auto-cuts!"
