@@ -160,3 +160,14 @@ process.sh
 	runs first organize.sh and then cutter.sh on subdirectories of a target directory in parallel
 
 ```
+
+
+Future
+------
+
+Candidates for simplification - 
+	organize.sh - 
+		don't need to use that grep, can parse with by_tag
+		simplify by_tag itself
+		handle lists of runs, lists of uncut videos, and symlinks in python instead of bash
+
