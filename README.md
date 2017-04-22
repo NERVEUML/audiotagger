@@ -55,11 +55,11 @@ Need it faster, or more parallel on large video sets? Read on.
 We have video that is typically copied into this folder structure:
 
 * 2017.01
- * monday
- * tuesday
- * wednesday
- * thursday
- * friday
+	* monday
+	* tuesday
+	* wednesday
+	* thursday
+	* friday
 
 So there's an `org_and_cut.sh` which will start parallel jobs for each of the subfolders of the target directory.
 
