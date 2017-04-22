@@ -50,6 +50,7 @@ To organize and cut video files that have had tags extracted:
 
 These scripts will run tasks serially without regard to further folder structure (video files are identified by file extension using GNU find).
 
+
 Need it faster, or more parallel on large video sets? Read on.
 
 We have video that is typically copied into this folder structure:
@@ -61,10 +62,11 @@ We have video that is typically copied into this folder structure:
 	* thursday
 	* friday
 
-So there's an `org_and_cut.sh` which will start parallel jobs for each of the subfolders of the target directory.
+So there's a `process.sh` which will start parallel jobs for each of the subfolders of the target directory.
+It tags, organizes, and then cuts videos. Magic!
 
 ```
-./org_and_cut.sh 2017.01/
+./process.sh 2017.01/
 ```
 
 
@@ -154,7 +156,7 @@ cutter.sh
 	finds all the .ffmpeg files (which contain ffmpeg lines to cut videos)
 		and runs each command line
 
-org_and_cut.sh
+process.sh
 	runs first organize.sh and then cutter.sh on subdirectories of a target directory in parallel
 
 ```
