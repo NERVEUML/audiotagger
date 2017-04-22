@@ -1,7 +1,7 @@
 #!/bin/bash
 
 IMHERE="$(dirname "$0")"
-. "${IMHERE}"/utils.sh
+. "${IMHERE}"/common.sh
 
 getoption "$1" each 
 getoption "$2" force 0

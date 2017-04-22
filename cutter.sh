@@ -1,8 +1,7 @@
 #!/bin/bash
 
 IMHERE="$(dirname "$0")"
-. "${IMHERE}"/utils.sh
-
+. "${IMHERE}"/common.sh
 
 showhelp(){
         echo $0 '<target_dir>'

@@ -6,7 +6,7 @@
 
 
 IMHERE="$(dirname "$0")"
-. ${IMHERE}/utils.sh
+. ${IMHERE}/common.sh
 
 showhelp(){
 	echo $0 'target_dir file_extension_to_work_on workingdir 1_or_0_to_force '
