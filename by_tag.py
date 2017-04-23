@@ -172,7 +172,7 @@ class Run:
         """Generate ffmpeg lines for cutting the file"""
         out = "_".join([ 
                     self.runname, 
-                    hashlib.md5(self.videofile).hexdigest()[:10]
+                    hashlib.md5(self.videofile.encode("utf-8")).hexdigest()[:10]
                     ]) + self.videofile[-4:] 
         startoffset = self.startoffset - 30 #offset to allow context
         duration = self.duration + 60 #offset for context, and some more because not all packets decoded properly on all videos

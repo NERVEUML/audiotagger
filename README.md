@@ -184,6 +184,7 @@ time ~/sucker/parallel-mount-and-copy.sh ./
 mkdir /mnt/data1/testing_tags
 cd /mnt/data1/testing_tags
 time ~/audiotagger/tagall.sh ../testing MOV
+source ~/audiotagger/env/bin/activate
 time ~/audiotagger/organize.sh ./
 ```
 
