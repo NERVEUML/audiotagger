@@ -171,3 +171,20 @@ Candidates for simplification -
 		simplify by_tag itself
 		handle lists of runs, lists of uncut videos, and symlinks in python instead of bash
 
+
+Notes
+-----
+
+Takes about an hour to copy 5 manned camera sd cards to SSDs. That's 340 .MOV files, average of 1GB each.
+
+
+```
+cd /mnt/data1/testing
+time ~/sucker/parallel-mount-and-copy.sh ./
+time ~/audiotagger/tagall.sh ./ MOV
+time ~/audiotagger/
+```
+
+multimon-ng
+---------
+needs qmake, provided by qt4 package, but makefile needs to be told where it is since the binary is a different name than stock multimon-ng expects
