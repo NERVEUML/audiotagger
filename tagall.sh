@@ -17,5 +17,5 @@ getoption "$2" workingdir "." #where to put working files, allows having them se
 getoption "$3" forceoverwrite 0
 
 
-find "$target_dir" -type f -regextype posix-extended -regex "${videofileregex}" -exec \
+find "$target_dir" -type f -regextype posix-extended -iregex "${videofileregex}" -exec \
 	"${IMHERE}/tag.sh" '{}' "$forceoverwrite" "$workingdir" \;
