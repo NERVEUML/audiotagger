@@ -53,7 +53,11 @@ def get_orig_fn_from_aprs_file( aprsdatafilename ):
     assert aprsdatafilename.endswith( aprsdataending )
     oldnamefile = aprsdatafilename[: - len(aprsdataending)] + oldnameending
     with open(oldnamefile,"r") as f:
-        return f.read().strip()
+        original_name = f.read().strip()
+        real_name = os.path.realpath( original_name )
+        assert os.path.samefile( real_name, original_name )
+        return real_name
+    
 
 
 class Packet:

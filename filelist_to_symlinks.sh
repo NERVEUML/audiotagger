@@ -18,7 +18,7 @@ while read filename; do
 	echo "$filename"
 	orig_fn="$(get_orig_fn "$filename")"
 	hash="$(hashname "$orig_fn")"
-	ln -s "$orig_fn" "$targetdir"/"$hash"
+	ln -sf "$orig_fn" "$targetdir"/"$hash"
 done < "$filelist"
 
 

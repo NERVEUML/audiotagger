@@ -11,7 +11,7 @@ getoption "$1" target_dir "./"
 mkdir -p "$target_dir"/cut
 find "$target_dir" -iname "*.$ffmpegext" -exec cat '{}' \; > "$target_dir"/cut/"$ffmpeglist"
 pushd "$target_dir"/cut
-while read cmd; do
-	$cmd </dev/null
-done < "$ffmpeglist"
+	while read cmd; do
+		$cmd </dev/null
+	done < "$ffmpeglist"
 popd

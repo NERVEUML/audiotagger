@@ -175,8 +175,9 @@ Candidates for simplification -
 Notes
 -----
 
-Takes about an hour to copy 5 manned camera sd cards to SSDs. That's 340 .MOV files, average of 1GB each.
+Takes about an hour to copy five manned camera sd cards to SSDs. That's 340 .MOV files, average of 1GB each.
 Six minutes to tag that video.
+Twelve seconds to organize that video.
 
 ```
 cd /mnt/data1/testing
