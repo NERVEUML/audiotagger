@@ -38,7 +38,7 @@ ffmpegext="ffmpeg"
 ffmpeglist="ffmpeg_commands.txt"
 runlist="runlist.txt"
 videolist="videolist.txt"
-
+videofileregex='.*\.(mp4|mov|mkv|264|avi|mpg|mpeg|h264|m4v|ogv|webm)$'
 
 #for each in *.MP4; do echo "$each"; ffmpeg -i "$each" "$each".flac; done
 #for each in *.MP4; do echo "$each"; multimon-ng -c -a AFSK1200 -t flac "$each.flac" > "$each.aprs"; done
