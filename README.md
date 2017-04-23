@@ -181,6 +181,8 @@ Twelve seconds to organize that video.
 Twenty-one minutes to cut the video.
 3:45 video is 1.4G gives around .40 gb/minute, gives around 900 minutes of video.
 
+So processing 900 minutes of video takes around half an hour - not too shabby.
+
 ```
 cd /mnt/data1/testing
 time ~/sucker/parallel-mount-and-copy.sh ./

@@ -19,6 +19,14 @@ while read runname; do
 	grep -iRl --include=*."$runsfilext" "$runname" "$target_dir" > "$rundir"/"$videolist"
 done < "$target_dir"/"$runlist"
 
+#list of untagged videos
+#TODO add folder of untagged videos
+#TODO generic way to take list of files (runs, .aprs, .json, whatever) and make directories with copies of those videos, cut or uncut
+# e.g. a way to find all videos tagged as 'crashes', or all untagged videos, etc
+find "$target_dir" -iname "*.$runsfilext" -size 0 > "$target_dir"/untagged.txt
+#while read filename; do
+
+
 #TODO don't hardcode location of by_tag
 find "$target_dir" -iname "$videolist" -exec ~/audiotagger/filelist_to_symlinks.sh '{}' \;
 
