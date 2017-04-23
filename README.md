@@ -178,6 +178,8 @@ Notes
 Takes about an hour to copy five manned camera sd cards to SSDs. That's 340 .MOV files, average of 1GB each.
 Six minutes to tag that video.
 Twelve seconds to organize that video.
+Twenty-one minutes to cut the video.
+3:45 video is 1.4G gives around .40 gb/minute, gives around 900 minutes of video.
 
 ```
 cd /mnt/data1/testing
