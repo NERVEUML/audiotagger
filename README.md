@@ -176,13 +176,15 @@ Notes
 -----
 
 Takes about an hour to copy 5 manned camera sd cards to SSDs. That's 340 .MOV files, average of 1GB each.
-
+Six minutes to tag that video.
 
 ```
 cd /mnt/data1/testing
 time ~/sucker/parallel-mount-and-copy.sh ./
-time ~/audiotagger/tagall.sh ./ MOV
-time ~/audiotagger/
+mkdir /mnt/data1/testing_tags
+cd /mnt/data1/testing_tags
+time ~/audiotagger/tagall.sh ../testing MOV
+time ~/audiotagger/organize.sh ./
 ```
 
 multimon-ng
