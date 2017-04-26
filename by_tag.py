@@ -181,7 +181,12 @@ class Run:
         startoffset = self.startoffset - 30 #offset to allow context
         duration = self.duration + 60 #offset for context, and some more because not all packets decoded properly on all videos
         videofile = self.videofile
-        return "ffmpeg -ss %(startoffset)d -i %(videofile)s -to %(duration)d -c copy %(out)s"% locals()
+        #-ss is start time
+        #-t is duration
+        #-to is end time
+        #also see this:
+        #https://blog.yimingliu.com/2008/10/07/ffmpeg-encoding-gotchas/
+        return "ffmpeg -ss %(startoffset)d -t %(duration)d -i %(videofile)s -c copy %(out)s"% locals()
 
     
 def parselines(filename, lines ):
